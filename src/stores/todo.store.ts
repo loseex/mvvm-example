@@ -2,28 +2,11 @@ import { Todo } from "@/models/todo.model";
 import { makeAutoObservable } from "mobx";
 
 class TodoStore {
-  private array: Todo[] = [];
-
   constructor() {
     makeAutoObservable(this);
   }
 
-  /**
-   * Метод для получения всего массива.
-   * @returns Список Todo
-   */
-  findAll(): Todo[] {
-    return this.array;
-  }
-
-  /**
-   * Метод для получения одного объекта из массива.
-   * @param { number } id
-   * @returns Todo
-   */
-  findOne(id: number): Todo {
-    return this.array[id];
-  }
+  array: Todo[] = this.init();
 
   /**
    * Метод для добавления новой задачи в список.
@@ -32,6 +15,7 @@ class TodoStore {
    */
   create(payload: Todo): void {
     this.array.push(payload);
+    this.save();
   }
 
   /**
@@ -40,20 +24,25 @@ class TodoStore {
    */
   save(): void {
     const string = JSON.stringify(this.array);
-    localStorage.setItem("data", string);
+    localStorage.setItem("todo-array", string);
+  }
+
+  /**
+   * Метод для очистки массива.
+   * @returns void
+   */
+  clear(): void {
+    this.array = [];
+    this.save();
   }
 
   /**
    * Метод для получения данных из localStorage.
    * @returns void
    */
-  init(): void {
-    const local = localStorage.getItem("data");
-    if (local) {
-      const json: Todo[] = JSON.parse(local);
-      this.array = json;
-    }
-    return void 0;
+  private init() {
+    const local = localStorage.getItem("todo-array");
+    return local ? JSON.parse(local!) : [];
   }
 }
 
